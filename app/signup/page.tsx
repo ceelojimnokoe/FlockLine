@@ -43,17 +43,6 @@ export default async function SignupPage({
 
         <form action={signUpWithPassword} className="space-y-4">
           <div>
-            <Label htmlFor="churchName">Church name</Label>
-            <Input
-              id="churchName"
-              name="churchName"
-              type="text"
-              autoComplete="organization"
-              placeholder="e.g. Bethel Assembly"
-              required
-            />
-          </div>
-          <div>
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -86,17 +75,6 @@ export default async function SignupPage({
         </div>
 
         <form action={signUpWithMagicLink} className="space-y-4">
-          <div>
-            <Label htmlFor="magic-churchName">Church name</Label>
-            <Input
-              id="magic-churchName"
-              name="churchName"
-              type="text"
-              autoComplete="organization"
-              placeholder="e.g. Bethel Assembly"
-              required
-            />
-          </div>
           <div>
             <Label htmlFor="magic-email">Email for magic link</Label>
             <Input

@@ -7,7 +7,6 @@ import { getOrigin } from "@/lib/get-origin";
 export async function signUpWithPassword(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const churchName = String(formData.get("churchName") ?? "").trim();
 
   if (password.length < 8) {
     redirect(
@@ -23,10 +22,6 @@ export async function signUpWithPassword(formData: FormData) {
     password,
     options: {
       emailRedirectTo: `${origin}/auth/callback`,
-      // No churches table yet — stashed on the user so the dashboard top
-      // bar has a real name to show. Move this to a proper churches table
-      // once multi-tenant church data is built.
-      data: { church_name: churchName },
     },
   });
 
@@ -39,7 +34,6 @@ export async function signUpWithPassword(formData: FormData) {
 
 export async function signUpWithMagicLink(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
-  const churchName = String(formData.get("churchName") ?? "").trim();
   const supabase = await createClient();
   const origin = await getOrigin();
 
@@ -48,7 +42,6 @@ export async function signUpWithMagicLink(formData: FormData) {
     options: {
       emailRedirectTo: `${origin}/auth/callback`,
       shouldCreateUser: true,
-      data: { church_name: churchName },
     },
   });
 
