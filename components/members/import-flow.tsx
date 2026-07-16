@@ -200,7 +200,7 @@ export function ImportFlow() {
 
         <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-left text-sm">
-            <thead className="bg-cream-200">
+            <thead className="bg-neutral-200">
               <tr>
                 {headers.map((header) => (
                   <th key={header} className="whitespace-nowrap px-3 py-2 font-medium text-foreground">

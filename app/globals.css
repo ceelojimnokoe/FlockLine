@@ -9,31 +9,36 @@
  * and `--radius-*` declared under `@theme` becomes a matching utility class
  * (e.g. `--color-primary-600` -> `bg-primary-600`, `text-primary-600`).
  *
- * Raw brand scales (primary/gold/cream/ink) are static. Semantic tokens
+ * Raw brand scales (primary/sky/neutral/ink) are static. Semantic tokens
  * (background, foreground, card, border, ...) are declared once in :root
  * and re-mapped under `@theme inline` so that swapping a single value here
  * (or adding a `.dark` override later) updates every component at once.
+ *
+ * Palette: dark blue (primary), light blue (sky/accent), white (neutral) —
+ * WhatsApp buttons/icons are a deliberate exception, kept WhatsApp's own
+ * brand green so they still read as "this launches WhatsApp" rather than
+ * blending into our own primary action color.
  */
 
 :root {
   /* Semantic tokens — the vocabulary components should reach for first. */
-  --background: var(--color-cream-100);
+  --background: var(--color-neutral-50);
   --foreground: var(--color-ink-900);
 
   --card: #ffffff;
   --card-foreground: var(--color-ink-900);
 
-  --muted: var(--color-cream-200);
+  --muted: var(--color-neutral-200);
   --muted-foreground: var(--color-ink-500);
 
-  --border: var(--color-ink-200);
-  --input: var(--color-ink-200);
+  --border: var(--color-neutral-300);
+  --input: var(--color-neutral-300);
   --ring: var(--color-primary-500);
 
   --primary: var(--color-primary-600);
   --primary-foreground: #ffffff;
 
-  --accent: var(--color-gold-500);
+  --accent: var(--color-sky-500);
   --accent-foreground: var(--color-ink-900);
 
   --destructive: #b3261e;
@@ -43,51 +48,51 @@
 }
 
 @theme inline {
-  /* Brand scale — deep, trustworthy green. Primary buttons, links, active nav. */
-  --color-primary-50: #f0f9f3;
-  --color-primary-100: #d5ebdd;
-  --color-primary-200: #acd8bb;
-  --color-primary-300: #7ebb93;
-  --color-primary-400: #4f9c6d;
-  --color-primary-500: #2f7d4f;
-  --color-primary-600: #1f6440;
-  --color-primary-700: #17502f;
-  --color-primary-800: #123f26;
-  --color-primary-900: #0e301d;
-  --color-primary-950: #081d12;
+  /* Brand scale — dark blue. Primary buttons, links, active nav. */
+  --color-primary-50: #eef4fb;
+  --color-primary-100: #d7e6f5;
+  --color-primary-200: #b0cceb;
+  --color-primary-300: #82ade0;
+  --color-primary-400: #4d87d1;
+  --color-primary-500: #2d68b8;
+  --color-primary-600: #1f4f97;
+  --color-primary-700: #1a3f79;
+  --color-primary-800: #163363;
+  --color-primary-900: #122a51;
+  --color-primary-950: #0b1a34;
 
-  /* Brand scale — warm gold accent. Sparingly: highlights, badges, emphasis. */
-  --color-gold-50: #fdf8ec;
-  --color-gold-100: #faebc4;
-  --color-gold-200: #f5d68c;
-  --color-gold-300: #efbe57;
-  --color-gold-400: #e4a72e;
-  --color-gold-500: #cc8f1d;
-  --color-gold-600: #a87317;
-  --color-gold-700: #855a15;
-  --color-gold-800: #6c4818;
-  --color-gold-900: #5a3c17;
+  /* Brand scale — light blue accent. Sparingly: highlights, badges, emphasis. */
+  --color-sky-50: #f0f9fd;
+  --color-sky-100: #dcf1fa;
+  --color-sky-200: #b8e2f4;
+  --color-sky-300: #8ccdea;
+  --color-sky-400: #5cb3dd;
+  --color-sky-500: #3898c9;
+  --color-sky-600: #277cab;
+  --color-sky-700: #21638a;
+  --color-sky-800: #1f5271;
+  --color-sky-900: #1e455f;
 
-  /* Neutral scale — warm cream, used for page backgrounds and surfaces. */
-  --color-cream-50: #fffefb;
-  --color-cream-100: #fdfaf2;
-  --color-cream-200: #faf3e1;
-  --color-cream-300: #f4e8c9;
-  --color-cream-400: #ead7a3;
-  --color-cream-500: #dcc17c;
+  /* Neutral scale — white-based, used for page backgrounds and surfaces. */
+  --color-neutral-50: #ffffff;
+  --color-neutral-100: #f7f9fb;
+  --color-neutral-200: #eef2f6;
+  --color-neutral-300: #dfe6ed;
+  --color-neutral-400: #c4cfd9;
+  --color-neutral-500: #9fadb9;
 
-  /* Neutral scale — warm gray (not pure gray) for body text and borders. */
-  --color-ink-50: #f7f6f3;
-  --color-ink-100: #ede9e2;
-  --color-ink-200: #d8d2c6;
-  --color-ink-300: #b8ae9a;
-  --color-ink-400: #8f8471;
-  --color-ink-500: #6e6555;
-  --color-ink-600: #565043;
-  --color-ink-700: #423e34;
-  --color-ink-800: #2e2b24;
-  --color-ink-900: #201e19;
-  --color-ink-950: #14130f;
+  /* Neutral scale — cool gray for body text and borders. */
+  --color-ink-50: #f5f7f9;
+  --color-ink-100: #e9edf1;
+  --color-ink-200: #d3dae1;
+  --color-ink-300: #b0bcc7;
+  --color-ink-400: #8592a0;
+  --color-ink-500: #64707d;
+  --color-ink-600: #4f5964;
+  --color-ink-700: #3d454e;
+  --color-ink-800: #2a2f36;
+  --color-ink-900: #1c2126;
+  --color-ink-950: #121519;
 
   /* Semantic aliases — resolve the :root custom properties above so utility
      classes like `bg-background` and `text-foreground` stay in sync with

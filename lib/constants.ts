@@ -6,7 +6,7 @@ export const APP_NAME = "FlockLine";
  * match, so keep "/" out of PUBLIC_ROUTE_PREFIXES or it would swallow every
  * route in the app (every path starts with "/").
  */
-export const PUBLIC_ROUTE_PREFIXES = ["/login", "/signup", "/auth"];
+export const PUBLIC_ROUTE_PREFIXES = ["/login", "/signup", "/auth", "/give"];
 
 export type DashboardNavItem = {
   label: string;
@@ -16,7 +16,7 @@ export type DashboardNavItem = {
 export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Members", href: "/dashboard/members" },
-  { label: "Follow-ups", href: "/dashboard/follow-ups" },
+  { label: "Follow-ups", href: "/dashboard/followups" },
   { label: "Giving", href: "/dashboard/giving" },
   { label: "More", href: "/dashboard/more" },
 ];

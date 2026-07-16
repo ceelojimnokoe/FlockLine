@@ -134,3 +134,24 @@ export async function getExistingPhones(): Promise<Set<string>> {
   if (error) throw error;
   return new Set((data ?? []).map((row) => row.phone as string));
 }
+
+export type MemberPickerOption = Pick<
+  Tables<"members">,
+  "id" | "first_name" | "last_name" | "phone" | "photo_url"
+>;
+
+/**
+ * Fetches every member for the searchable member picker (Create follow-up
+ * form). Filtered client-side rather than server-searched — fine at this
+ * app's scale (a church's whole roster is at most a few hundred rows).
+ */
+export async function getAllMembersForPicker(): Promise<MemberPickerOption[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("members")
+    .select("id, first_name, last_name, phone, photo_url")
+    .order("first_name", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}

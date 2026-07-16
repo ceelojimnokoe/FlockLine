@@ -10,9 +10,10 @@ export function MemberRow({ member }: { member: MemberListItem }) {
     <li>
       <Link
         href={`/dashboard/members/${member.id}`}
-        className="flex min-h-tap items-center gap-3 rounded-xl px-2 py-2 hover:bg-cream-200 active:bg-cream-300"
+        className="flex min-h-tap items-center gap-3 rounded-xl px-2 py-2 hover:bg-neutral-200 active:bg-neutral-300"
       >
         <MemberAvatar
+          id={member.id}
           firstName={member.first_name}
           lastName={member.last_name}
           photoUrl={member.photo_url}

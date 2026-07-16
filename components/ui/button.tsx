@@ -11,7 +11,7 @@ export const buttonVariantClasses: Record<ButtonVariant, string> = {
   primary:
     "bg-primary text-primary-foreground hover:bg-primary-700 active:bg-primary-800",
   secondary:
-    "bg-cream-200 text-foreground hover:bg-cream-300 active:bg-cream-400",
+    "bg-neutral-200 text-foreground hover:bg-neutral-300 active:bg-neutral-400",
   ghost: "bg-transparent text-primary hover:bg-primary-50",
 };
 

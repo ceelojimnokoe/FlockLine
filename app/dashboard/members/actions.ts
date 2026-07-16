@@ -201,7 +201,7 @@ export async function createTag(name: string): Promise<{ id: string; name: strin
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("tags")
-    .insert({ church_id: churchUser.church_id, name: trimmed, color: "#2f7d4f" })
+    .insert({ church_id: churchUser.church_id, name: trimmed, color: "#1f4f97" })
     .select("id, name, color")
     .single();
 

@@ -64,9 +64,9 @@ begin
   select array_agg(id order by first_name) into m_ids from public.members where church_id = demo_church_id;
 
   -- Tags
-  insert into public.tags (church_id, name, color) values (demo_church_id, 'Choir', '#1f6440') returning id into tag_choir;
-  insert into public.tags (church_id, name, color) values (demo_church_id, 'Youth', '#cc8f1d') returning id into tag_youth;
-  insert into public.tags (church_id, name, color) values (demo_church_id, 'New Convert 2026', '#2f7d4f') returning id into tag_newconvert;
+  insert into public.tags (church_id, name, color) values (demo_church_id, 'Choir', '#1f4f97') returning id into tag_choir;
+  insert into public.tags (church_id, name, color) values (demo_church_id, 'Youth', '#3898c9') returning id into tag_youth;
+  insert into public.tags (church_id, name, color) values (demo_church_id, 'New Convert 2026', '#277cab') returning id into tag_newconvert;
 
   insert into public.member_tags (member_id, tag_id) values
     (m_ids[1], tag_choir),

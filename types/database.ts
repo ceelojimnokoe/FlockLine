@@ -502,6 +502,43 @@ export type Database = {
           },
         ];
       };
+      message_templates: {
+        Row: {
+          id: string;
+          church_id: string;
+          follow_up_type: "visitor_welcome" | "new_convert" | "absentee" | "pastoral_care";
+          name: string;
+          body: string;
+          is_default: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          follow_up_type: "visitor_welcome" | "new_convert" | "absentee" | "pastoral_care";
+          name: string;
+          body: string;
+          is_default?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          follow_up_type?: "visitor_welcome" | "new_convert" | "absentee" | "pastoral_care";
+          name?: string;
+          body?: string;
+          is_default?: boolean;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "message_templates_church_id_fkey";
+            columns: ["church_id"];
+            referencedRelation: "churches";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -529,6 +566,18 @@ export type Database = {
           plan: "starter" | "pro" | "business";
           created_at: string;
         };
+      };
+      get_church_teammates: {
+        Args: Record<PropertyKey, never>;
+        Returns: { id: string; email: string; role: string }[];
+      };
+      get_public_church_by_slug: {
+        Args: { p_slug: string };
+        Returns: { id: string; name: string; logo_url: string | null }[];
+      };
+      get_public_giving_funds: {
+        Args: { p_church_id: string };
+        Returns: { id: string; name: string }[];
       };
     };
     Enums: Record<string, never>;

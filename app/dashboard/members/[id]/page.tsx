@@ -50,6 +50,7 @@ export default async function MemberProfilePage({
 
       <div className="flex items-start gap-4">
         <MemberAvatar
+          id={member.id}
           firstName={member.first_name}
           lastName={member.last_name}
           photoUrl={member.photo_url}
@@ -119,7 +120,17 @@ export default async function MemberProfilePage({
       </Card>
 
       <Card>
-        <h2 className="text-lg font-semibold text-foreground">Giving history</h2>
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold text-foreground">Giving history</h2>
+          {showGiving && (
+            <Link
+              href={`/dashboard/members/${id}/statement`}
+              className="text-sm font-medium text-primary underline underline-offset-4"
+            >
+              Statement
+            </Link>
+          )}
+        </div>
         <div className="mt-3">
           <GivingHistory records={givingRecords} canView={showGiving} />
         </div>

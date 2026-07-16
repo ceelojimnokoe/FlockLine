@@ -35,3 +35,22 @@ export function formatCurrency(amount: number, currency: string): string {
     currencyDisplay: "narrowSymbol",
   }).format(amount);
 }
+
+/**
+ * Always computed in Ghana's timezone regardless of where the server
+ * itself runs — a Server Component has no access to the visitor's actual
+ * timezone, and "Good evening" showing at 8am because the server is on
+ * UTC would be a worse bug than just assuming this app's primary market.
+ */
+export function getTimeOfDayGreeting(): string {
+  const hour = Number(
+    new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      hour12: false,
+      timeZone: "Africa/Accra",
+    }).format(new Date())
+  );
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}

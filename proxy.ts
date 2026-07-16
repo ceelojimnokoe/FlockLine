@@ -15,9 +15,13 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Run on every route except static assets and Next's internals, so
-     * auth logic never blocks CSS/JS/image loading.
+     * Run on every route except static assets, Next's internals, and API
+     * routes. API routes (e.g. the Paystack webhook) are excluded
+     * deliberately: they're called server-to-server with no session
+     * cookie, so this session-refresh/redirect-to-login logic doesn't
+     * apply — each API route is responsible for its own auth (signature
+     * verification, a service-role check, etc.), not this proxy.
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|csv)$).*)",
   ],
 };

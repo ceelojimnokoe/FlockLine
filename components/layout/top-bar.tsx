@@ -2,7 +2,7 @@ import { signOut } from "@/app/dashboard/actions";
 
 export function TopBar({ churchName }: { churchName: string }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-card">
+    <header className="sticky top-0 z-20 border-b border-border bg-card print:hidden">
       <div className="mx-auto flex min-h-tap max-w-2xl items-center justify-between px-4">
         <span className="truncate text-lg font-semibold text-foreground">
           {churchName}
