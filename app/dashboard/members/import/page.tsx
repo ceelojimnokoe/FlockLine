@@ -7,7 +7,7 @@ export default function ImportMembersPage() {
       <Link href="/dashboard/members" className="text-sm font-medium text-muted-foreground">
         ← Members
       </Link>
-      <h1 className="text-2xl font-semibold text-foreground">Import members</h1>
+      <h1 className="font-display text-2xl font-semibold text-foreground">Import members</h1>
       <ImportFlow />
     </div>
   );

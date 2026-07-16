@@ -11,7 +11,7 @@ export default async function TemplatesPage() {
         ← Follow-ups
       </Link>
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">WhatsApp templates</h1>
+        <h1 className="font-display text-2xl font-semibold text-foreground">WhatsApp templates</h1>
         <p className="mt-1 text-base text-muted-foreground">
           Edit the messages your team sends, or add your own. The one marked{" "}
           <span className="font-medium text-primary-700">Default</span> is what the one-tap

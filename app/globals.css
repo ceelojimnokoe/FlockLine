@@ -94,6 +94,19 @@
   --color-ink-900: #1c2126;
   --color-ink-950: #121519;
 
+  /* Semantic-only accents for member-status differentiation. NOT part of
+     the brand palette (which stays blue) — used only so First-timer / New
+     convert / Member badges are instantly distinguishable from each other,
+     the same deliberate exception already made for destructive (red) and
+     WhatsApp (green). Kept to the two shades badges actually use. */
+  --color-amber-100: #fef3e2;
+  --color-amber-700: #a15c07;
+  --color-amber-800: #854d07;
+
+  --color-violet-100: #ede9fe;
+  --color-violet-700: #6d28d9;
+  --color-violet-800: #5b21b6;
+
   /* Semantic aliases — resolve the :root custom properties above so utility
      classes like `bg-background` and `text-foreground` stay in sync with
      the vocabulary components use, including any future dark-mode override. */
@@ -135,8 +148,11 @@
      recommendation) on top of Tailwind's default scale, e.g. `min-h-tap`. */
   --spacing-tap: 3rem;
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Inter for interface text (nav, forms, buttons, lists, labels); Fraunces
+     — applied selectively via `font-display` — for login branding, the
+     dashboard greeting, large stat figures, and the giving amount. */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-fraunces);
 }
 
 body {

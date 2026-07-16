@@ -15,6 +15,39 @@ export const MEMBER_STATUS_LABELS: Record<MemberStatus, string> = {
   inactive: "Inactive",
 };
 
+/**
+ * Single source of truth for how each member status is colored — badges,
+ * filter-chip dots, avatars-adjacent indicators, anywhere a status needs
+ * to be recognizable at a glance. Each pair is a light background + a
+ * text color meeting contrast against it; color is never the only signal
+ * since every consumer of this also renders `label` as real text.
+ */
+export const MEMBER_STATUS_STYLES: Record<
+  MemberStatus,
+  { label: string; badgeClassName: string; dotClassName: string }
+> = {
+  first_timer: {
+    label: "First-timer",
+    badgeClassName: "bg-amber-100 text-amber-800",
+    dotClassName: "bg-amber-700",
+  },
+  new_convert: {
+    label: "New convert",
+    badgeClassName: "bg-violet-100 text-violet-800",
+    dotClassName: "bg-violet-700",
+  },
+  member: {
+    label: "Member",
+    badgeClassName: "bg-primary-100 text-primary-800",
+    dotClassName: "bg-primary-700",
+  },
+  inactive: {
+    label: "Inactive",
+    badgeClassName: "bg-ink-100 text-ink-600",
+    dotClassName: "bg-ink-400",
+  },
+};
+
 export const MEMBER_GENDERS = ["male", "female"] as const;
 export type MemberGender = (typeof MEMBER_GENDERS)[number];
 

@@ -29,6 +29,8 @@ export async function initializeGiving(
   const amount = Number(formData.get("amount"));
   const giverName = String(formData.get("giverName") ?? "").trim();
   const giverPhoneRaw = String(formData.get("giverPhone") ?? "").trim();
+  const giverEmailRaw = String(formData.get("giverEmail") ?? "").trim();
+  const isAnonymous = formData.get("isAnonymous") === "on";
 
   if (!isValidGivingAmount(amount)) {
     return { error: "Enter an amount between GHS 1 and GHS 100,000." };
@@ -37,6 +39,11 @@ export async function initializeGiving(
   const giverPhone = giverPhoneRaw ? normalizeGhanaPhone(giverPhoneRaw) : "";
   if (giverPhone && !isValidE164(giverPhone)) {
     return { error: "Enter a valid phone number, or leave it blank." };
+  }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (giverEmailRaw && !EMAIL_RE.test(giverEmailRaw)) {
+    return { error: "Enter a valid email address, or leave it blank." };
   }
 
   const supabase = createServiceRoleClient();
@@ -54,8 +61,11 @@ export async function initializeGiving(
     return { error: "This giving fund is not available right now." };
   }
 
+  // Anonymous giving skips member-matching entirely, even if a phone was
+  // entered (e.g. so the giver can still get an SMS receipt from their
+  // mobile money provider without FlockLine attributing the gift to them).
   let memberId: string | null = null;
-  if (giverPhone) {
+  if (giverPhone && !isAnonymous) {
     const { data: member } = await supabase
       .from("members")
       .select("id")
@@ -65,11 +75,10 @@ export async function initializeGiving(
     memberId = member?.id ?? null;
   }
 
-  // Paystack requires an email; the form deliberately doesn't collect one
-  // (per spec: just optional name + phone), so synthesize an
-  // obviously-fake, app-controlled placeholder purely to satisfy that API
-  // requirement. It's never used to send anything.
-  const email = `giving-${randomUUID().slice(0, 8)}@giving.flockline.app`;
+  // Paystack requires an email. Use a real one if the giver provided it (so
+  // Paystack sends its own payment receipt); otherwise synthesize an
+  // obviously-fake, app-controlled placeholder purely to satisfy the API.
+  const email = giverEmailRaw || `giving-${randomUUID().slice(0, 8)}@giving.flockline.app`;
 
   try {
     const { accessCode, reference } = await initializePaystackTransaction({
@@ -79,8 +88,10 @@ export async function initializeGiving(
         church_id: churchId,
         fund_id: fundId,
         member_id: memberId,
-        giver_name: giverName || null,
+        giver_name: isAnonymous ? null : giverName || null,
         giver_phone: giverPhone || null,
+        giver_email: giverEmailRaw || null,
+        is_anonymous: isAnonymous,
       },
     });
 

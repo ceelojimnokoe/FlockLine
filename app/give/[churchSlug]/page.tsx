@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { GiveForm } from "@/components/giving/give-form";
+import { ChurchIdentity } from "@/components/layout/church-identity";
 import { getPublicChurchBySlug, getPublicGivingFunds } from "@/lib/data/public-giving";
 
 type PageProps = {
@@ -33,23 +34,18 @@ export default async function GivePage({ params }: PageProps) {
   const funds = await getPublicGivingFunds(church.id);
 
   return (
-    <main className="flex min-h-dvh flex-col justify-center bg-background px-5 py-10">
-      <div className="mx-auto w-full max-w-sm">
-        <div className="mb-8 text-center">
-          {church.logo_url && (
-            // eslint-disable-next-line @next/next/no-img-element -- arbitrary external church logo URL
-            <img
-              src={church.logo_url}
-              alt=""
-              className="mx-auto mb-3 h-16 w-16 rounded-full object-cover"
-            />
+    <main className="min-h-dvh bg-background">
+      <div className="bg-sky-100 px-5 py-6 text-primary-900">
+        <div className="mx-auto w-full max-w-sm">
+          <ChurchIdentity name={`Give to ${church.name}`} logoUrl={church.logo_url} size="lg" />
+          <p className="mt-2 text-sm opacity-80">Secure giving — card or mobile money.</p>
+          {church.giving_message && (
+            <p className="mt-3 text-sm text-primary-900/90">{church.giving_message}</p>
           )}
-          <h1 className="text-2xl font-semibold text-foreground">{church.name}</h1>
-          <p className="mt-1 text-base text-muted-foreground">
-            Give securely with card or mobile money.
-          </p>
         </div>
+      </div>
 
+      <div className="mx-auto w-full max-w-sm px-5 py-6">
         {funds.length === 0 ? (
           <p className="text-center text-base text-muted-foreground">
             This church hasn&apos;t set up giving yet. Please check back soon.

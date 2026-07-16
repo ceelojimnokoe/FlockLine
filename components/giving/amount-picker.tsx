@@ -43,6 +43,10 @@ export function AmountPicker({
         onChange={(e) => onChange(e.target.value)}
         aria-label="Amount in Ghana cedis"
       />
+      <p className="py-2 text-center font-display text-3xl font-semibold text-foreground">
+        <span className="text-xl text-muted-foreground">₵</span>
+        {value || "0"}
+      </p>
     </div>
   );
 }

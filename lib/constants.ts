@@ -7,16 +7,3 @@ export const APP_NAME = "FlockLine";
  * route in the app (every path starts with "/").
  */
 export const PUBLIC_ROUTE_PREFIXES = ["/login", "/signup", "/auth", "/give"];
-
-export type DashboardNavItem = {
-  label: string;
-  href: string;
-};
-
-export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Members", href: "/dashboard/members" },
-  { label: "Follow-ups", href: "/dashboard/followups" },
-  { label: "Giving", href: "/dashboard/giving" },
-  { label: "More", href: "/dashboard/more" },
-];

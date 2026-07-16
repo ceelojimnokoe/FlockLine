@@ -3,9 +3,12 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { MessageCircle } from "lucide-react";
 import { MemberAvatar } from "@/components/members/avatar";
+import { StatusBadge } from "@/components/members/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { WhatsAppMessagePreview } from "./whatsapp-message-preview";
 import { toWhatsAppUrl } from "@/lib/phone";
 import { renderTemplate } from "@/lib/template";
 import { formatDate } from "@/lib/format";
@@ -17,6 +20,7 @@ import {
   type FollowUpType,
   type FollowUpStatus,
 } from "@/lib/validation/follow-up";
+import type { MemberStatus } from "@/lib/validation/member";
 import { updateFollowUpStatus, reopenFollowUp } from "@/app/dashboard/followups/actions";
 import type { FollowUpListItem } from "@/lib/data/follow-ups";
 import type { MessageTemplate } from "@/lib/data/templates";
@@ -33,6 +37,7 @@ export function FollowUpCard({
   churchName: string;
   assignee: Teammate | undefined;
 }) {
+  const [showPreview, setShowPreview] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
   const [note, setNote] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -52,6 +57,14 @@ export function FollowUpCard({
     });
     return `${base}?text=${encodeURIComponent(message)}`;
   }, [followUp, template, churchName]);
+
+  const previewMessage = useMemo(() => {
+    if (!template) return null;
+    return renderTemplate(template.body, {
+      first_name: followUp.member.first_name,
+      church_name: churchName,
+    });
+  }, [template, followUp.member.first_name, churchName]);
 
   function handleStatusUpdate(nextStatus: "in_progress" | "done") {
     startTransition(async () => {
@@ -95,12 +108,13 @@ export function FollowUpCard({
             <p className="truncate text-base font-medium text-foreground">
               {followUp.member.first_name} {followUp.member.last_name}
             </p>
-            <p className="text-sm text-muted-foreground">
-              {FOLLOW_UP_TYPE_LABELS[type] ?? type}
-            </p>
+            <p className="text-sm text-muted-foreground">{FOLLOW_UP_TYPE_LABELS[type] ?? type}</p>
           </div>
         </Link>
-        <Badge className={FOLLOW_UP_STATUS_CLASSES[status]}>{FOLLOW_UP_STATUS_LABELS[status]}</Badge>
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <StatusBadge status={followUp.member.status as MemberStatus} />
+          <Badge className={FOLLOW_UP_STATUS_CLASSES[status]}>{FOLLOW_UP_STATUS_LABELS[status]}</Badge>
+        </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -118,16 +132,15 @@ export function FollowUpCard({
       )}
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {waUrl && (
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setShowPrompt(true)}
-            className="min-h-tap inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-4 text-sm font-medium text-white"
+        {waUrl && !showPreview && (
+          <button
+            type="button"
+            onClick={() => setShowPreview(true)}
+            className="min-h-tap inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-4 text-sm font-medium text-white hover:bg-[#1fb959]"
           >
-            Send on WhatsApp
-          </a>
+            <MessageCircle className="h-4 w-4" aria-hidden="true" />
+            Preview message
+          </button>
         )}
 
         {status === "pending" && (
@@ -146,6 +159,17 @@ export function FollowUpCard({
           </QuickButton>
         )}
       </div>
+
+      {showPreview && waUrl && previewMessage && (
+        <div className="mt-3">
+          <WhatsAppMessagePreview
+            recipientFirstName={followUp.member.first_name}
+            message={previewMessage}
+            waUrl={waUrl}
+            onSendClick={() => setShowPrompt(true)}
+          />
+        </div>
+      )}
 
       {showPrompt && (
         <div className="mt-3 space-y-2 rounded-xl border border-primary-200 bg-primary-50 p-3">

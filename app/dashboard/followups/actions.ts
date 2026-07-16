@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentChurchUser } from "@/lib/data/church";
+import { notifyRecipient } from "@/lib/data/notifications";
 import { FOLLOW_UP_TYPES, type FollowUpType } from "@/lib/validation/follow-up";
 
 export type FollowUpFormState = {
@@ -44,6 +45,13 @@ export async function createFollowUp(
   if (error) {
     return { error: error.message };
   }
+
+  await notifyRecipient(supabase, assignedTo, churchUser.id, {
+    category: "care",
+    type: "follow_up_assigned",
+    title: "A follow-up was assigned to you",
+    link: "/dashboard/followups?status=pending",
+  });
 
   revalidatePath("/dashboard/followups");
   revalidatePath("/dashboard");

@@ -1,9 +1,19 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const SIZE_CLASSES = {
   sm: "h-10 w-10 text-sm",
   md: "h-14 w-14 text-base",
   lg: "h-20 w-20 text-xl",
+} as const;
+
+// Matches the Tailwind h-10/h-14/h-20 above (2.5rem/3.5rem/5rem @ 16px root)
+// — next/image needs explicit intrinsic dimensions since these are remote,
+// dynamically-sized URLs it can't otherwise infer.
+const SIZE_PX = {
+  sm: 40,
+  md: 56,
+  lg: 80,
 } as const;
 
 // A small, muted, varied palette so a scannable list of avatars doesn't
@@ -45,10 +55,11 @@ export function MemberAvatar({
 }) {
   if (photoUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element -- member photos are arbitrary external URLs, not build-time known
-      <img
+      <Image
         src={photoUrl}
         alt=""
+        width={SIZE_PX[size]}
+        height={SIZE_PX[size]}
         className={cn("shrink-0 rounded-xl object-cover", SIZE_CLASSES[size], className)}
       />
     );

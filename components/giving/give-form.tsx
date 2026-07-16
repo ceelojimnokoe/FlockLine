@@ -5,9 +5,9 @@ import { useFormStatus } from "react-dom";
 import Script from "next/script";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { AmountPicker } from "./amount-picker";
+import { FundGrid } from "./fund-grid";
 import { initializeGiving } from "@/app/give/[churchSlug]/actions";
 import type { PublicGivingFund } from "@/lib/data/public-giving";
 
@@ -21,8 +21,10 @@ export function GiveForm({
   funds: PublicGivingFund[];
 }) {
   const [state, formAction] = useActionState(initializeGiving, null);
+  const [fundId, setFundId] = useState(funds[0]?.id ?? "");
   const [amount, setAmount] = useState("");
   const [phone, setPhone] = useState("+233");
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [scriptReady, setScriptReady] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "success" | "cancelled">("idle");
 
@@ -40,7 +42,9 @@ export function GiveForm({
   if (paymentStatus === "success") {
     return (
       <div className="rounded-2xl border border-primary-200 bg-primary-50 p-6 text-center">
-        <h2 className="text-xl font-semibold text-foreground">Thank you for giving! 🙏</h2>
+        <h2 className="font-display text-xl font-semibold text-foreground">
+          Thank you for giving! 🙏
+        </h2>
         <p className="mt-2 text-base text-muted-foreground">
           Your gift to {churchName} is being processed. God bless you.
         </p>
@@ -67,21 +71,21 @@ export function GiveForm({
         )}
 
         <div>
-          <Label htmlFor="fundId">Give towards</Label>
-          <Select id="fundId" name="fundId" defaultValue={funds[0]?.id ?? ""}>
-            {funds.map((fund) => (
-              <option key={fund.id} value={fund.id}>
-                {fund.name}
-              </option>
-            ))}
-          </Select>
+          <Label>Choose a fund</Label>
+          <FundGrid funds={funds} value={fundId} onChange={setFundId} name="fundId" />
         </div>
 
         <AmountPicker value={amount} onChange={setAmount} />
 
         <div>
           <Label htmlFor="giverName">Your name (optional)</Label>
-          <Input id="giverName" name="giverName" type="text" autoComplete="name" />
+          <Input
+            id="giverName"
+            name="giverName"
+            type="text"
+            autoComplete="name"
+            disabled={isAnonymous}
+          />
         </div>
 
         <div>
@@ -97,6 +101,25 @@ export function GiveForm({
           />
         </div>
 
+        <div>
+          <Label htmlFor="giverEmail">Your email (optional)</Label>
+          <Input id="giverEmail" name="giverEmail" type="email" autoComplete="email" />
+          <p className="mt-1 text-sm text-muted-foreground">
+            We&apos;ll only use this for Paystack&apos;s payment receipt.
+          </p>
+        </div>
+
+        <label className="flex min-h-tap cursor-pointer items-center gap-2 text-base text-foreground">
+          <input
+            type="checkbox"
+            name="isAnonymous"
+            checked={isAnonymous}
+            onChange={(e) => setIsAnonymous(e.target.checked)}
+            className="h-5 w-5 rounded border-input"
+          />
+          Give anonymously — don&apos;t link this gift to my name in the church&apos;s records
+        </label>
+
         <SubmitButton amount={amount} />
       </form>
     </>
@@ -105,7 +128,7 @@ export function GiveForm({
 
 function SubmitButton({ amount }: { amount: string }) {
   const { pending } = useFormStatus();
-  const label = amount ? `Give GHS ${amount}` : "Give";
+  const label = amount ? `Give ₵${amount}` : "Give";
 
   return (
     <Button type="submit" disabled={pending} className="w-full">

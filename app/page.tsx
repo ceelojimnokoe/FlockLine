@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-6 py-10 text-center">
       <div className="mx-auto w-full max-w-sm">
-        <h1 className="text-3xl font-semibold text-foreground">{APP_NAME}</h1>
+        <h1 className="font-display text-3xl font-semibold text-foreground">{APP_NAME}</h1>
         <p className="mt-3 text-lg text-muted-foreground">
           WhatsApp-first church management, built for congregations of 50 to
           400.

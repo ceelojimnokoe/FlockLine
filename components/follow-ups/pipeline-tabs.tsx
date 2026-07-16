@@ -3,9 +3,17 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useTransition, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { FilterChip } from "@/components/ui/filter-chip";
 import { FOLLOW_UP_STATUSES, FOLLOW_UP_STATUS_LABELS } from "@/lib/validation/follow-up";
 
-export function PipelineTabs({ overdueCount }: { overdueCount: number }) {
+export function PipelineTabs({
+  overdueCount,
+  statusCounts,
+}: {
+  overdueCount: number;
+  /** e.g. { pending: 6, in_progress: 2, done: 11 } — shown inline on each tab, per the reference design. */
+  statusCounts: Record<string, number>;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -35,21 +43,22 @@ export function PipelineTabs({ overdueCount }: { overdueCount: number }) {
 
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
         {FOLLOW_UP_STATUSES.map((status) => (
-          <TabButton
+          <FilterChip
             key={status}
             active={activeStatus === status}
             onClick={() => setParam("status", status)}
           >
             {FOLLOW_UP_STATUS_LABELS[status]}
-          </TabButton>
+            {statusCounts[status] > 0 ? ` · ${statusCounts[status]}` : ""}
+          </FilterChip>
         ))}
-        <TabButton
+        <FilterChip
           active={activeStatus === "overdue"}
           destructive
           onClick={() => setParam("status", "overdue")}
         >
           Overdue{overdueCount > 0 ? ` (${overdueCount})` : ""}
-        </TabButton>
+        </FilterChip>
       </div>
     </div>
   );
@@ -70,38 +79,9 @@ function ScopeButton({
       onClick={onClick}
       className={cn(
         "min-h-tap flex-1 rounded-xl border text-sm font-medium",
-        active ? "border-primary-600 bg-primary-600 text-primary-foreground" : "border-border bg-card text-foreground"
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
-function TabButton({
-  active,
-  onClick,
-  destructive,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  destructive?: boolean;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "min-h-tap shrink-0 whitespace-nowrap rounded-full border px-4 text-sm font-medium",
         active
-          ? destructive
-            ? "border-destructive bg-destructive text-destructive-foreground"
-            : "border-primary-600 bg-primary-600 text-primary-foreground"
-          : destructive
-            ? "border-destructive/40 bg-card text-destructive"
-            : "border-border bg-card text-foreground"
+          ? "border-primary-600 bg-primary-600 text-primary-foreground"
+          : "border-border bg-card text-foreground"
       )}
     >
       {children}

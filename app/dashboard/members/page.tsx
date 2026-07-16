@@ -32,7 +32,12 @@ export default async function MembersPage({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-semibold text-foreground">Members</h1>
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-foreground">Members</h1>
+          <p className="text-sm text-muted-foreground">
+            {totalCount} {totalCount === 1 ? "person" : "people"}
+          </p>
+        </div>
         <LinkButton href="/dashboard/members/import" variant="secondary" className="px-3">
           Import
         </LinkButton>

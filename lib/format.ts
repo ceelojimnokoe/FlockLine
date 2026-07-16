@@ -28,6 +28,18 @@ export function formatDate(iso: string): string {
   });
 }
 
+/** "Tue, 16 Jul · 6:00 PM" — used for session/meeting timestamps. */
+export function formatDateTime(iso: string): string {
+  const date = new Date(iso);
+  const datePart = date.toLocaleDateString("en-GH", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+  const timePart = date.toLocaleTimeString("en-GH", { hour: "numeric", minute: "2-digit" });
+  return `${datePart} · ${timePart}`;
+}
+
 export function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat("en-GH", {
     style: "currency",

@@ -2,6 +2,7 @@ import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
 import type { GivingRecordWithFund } from "@/lib/data/members";
+import type { GivingMethod } from "@/lib/validation/giving";
 
 export type GivingFund = Tables<"giving_funds">;
 
@@ -17,9 +18,34 @@ export async function getGivingFunds(): Promise<GivingFund[]> {
   return data;
 }
 
+export async function getFundById(id: string): Promise<GivingFund | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("giving_funds").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 function startOfMonthISO(): string {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+}
+
+function startOfTodayISO(): string {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+}
+
+function startOfWeekISO(): string {
+  const now = new Date();
+  const day = now.getDay(); // 0 = Sun .. 6 = Sat
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diffToMonday);
+  return monday.toISOString();
+}
+
+function startOfYearISO(): string {
+  const now = new Date();
+  return new Date(now.getFullYear(), 0, 1).toISOString();
 }
 
 export async function getMonthTotal(): Promise<number> {
@@ -31,6 +57,50 @@ export async function getMonthTotal(): Promise<number> {
 
   if (error) throw error;
   return (data ?? []).reduce((sum, row) => sum + Number(row.amount), 0);
+}
+
+export type GivingSummary = {
+  today: number;
+  week: number;
+  month: number;
+  year: number;
+  onlineMonth: number;
+  offlineMonth: number;
+};
+
+/**
+ * One query for the dashboard's whole "at a glance" header — every period
+ * total and the online/offline split are derived from the same year-to-date
+ * row set client-side, rather than issuing 6 separate range queries.
+ */
+export async function getGivingSummary(): Promise<GivingSummary> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("giving_records")
+    .select("amount, given_at, method")
+    .gte("given_at", startOfYearISO());
+
+  if (error) throw error;
+
+  const todayStart = startOfTodayISO();
+  const weekStart = startOfWeekISO();
+  const monthStart = startOfMonthISO();
+
+  const summary: GivingSummary = { today: 0, week: 0, month: 0, year: 0, onlineMonth: 0, offlineMonth: 0 };
+
+  for (const row of data ?? []) {
+    const amount = Number(row.amount);
+    summary.year += amount;
+    if (row.given_at >= monthStart) {
+      summary.month += amount;
+      if (row.method === "paystack") summary.onlineMonth += amount;
+      else summary.offlineMonth += amount;
+    }
+    if (row.given_at >= weekStart) summary.week += amount;
+    if (row.given_at >= todayStart) summary.today += amount;
+  }
+
+  return summary;
 }
 
 export type FundTotal = { fundId: string; fundName: string; total: number };
@@ -139,6 +209,51 @@ export async function getRecentGivingRecords(searchQuery?: string): Promise<Givi
   const { data, error } = await query;
   if (error) throw error;
   return data as unknown as GivingRecordListItem[];
+}
+
+export type TransactionFilters = {
+  from?: string;
+  to?: string;
+  fundId?: string;
+  method?: GivingMethod;
+  q?: string;
+};
+
+const TRANSACTIONS_PAGE_SIZE = 25;
+
+export async function getTransactions(
+  filters: TransactionFilters = {},
+  offset = 0,
+  limit = TRANSACTIONS_PAGE_SIZE
+): Promise<{ records: GivingRecordListItem[]; hasMore: boolean }> {
+  const supabase = await createClient();
+  const term = filters.q ? sanitizeSearchTerm(filters.q) : "";
+
+  const memberEmbed = term
+    ? "member:members!inner(id, first_name, last_name)"
+    : "member:members(id, first_name, last_name)";
+
+  let query = supabase
+    .from("giving_records")
+    .select(`*, ${memberEmbed}, fund:giving_funds(name)`)
+    .order("given_at", { ascending: false })
+    .range(offset, offset + limit);
+
+  if (filters.from) query = query.gte("given_at", filters.from);
+  if (filters.to) query = query.lte("given_at", filters.to);
+  if (filters.fundId) query = query.eq("fund_id", filters.fundId);
+  if (filters.method) query = query.eq("method", filters.method);
+  if (term) {
+    query = query.or(`first_name.ilike.%${term}%,last_name.ilike.%${term}%`, {
+      foreignTable: "members",
+    });
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const records = data as unknown as GivingRecordListItem[];
+  return { records: records.slice(0, limit), hasMore: records.length > limit };
 }
 
 export async function getMemberGivingInRange(

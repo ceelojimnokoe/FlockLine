@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import { Alert } from "@/components/ui/alert";
 import { createChurch } from "./actions";
 
@@ -14,10 +14,12 @@ export default async function OnboardingPage({
   const params = await searchParams;
 
   const supabase = await createClient();
-  const { data: churchUser } = await supabase
+  const { data: churchUser, error } = await supabase
     .from("church_users")
     .select("id")
     .maybeSingle();
+
+  if (error) throw error;
 
   // Already onboarded (one church per user for MVP) — nothing to do here.
   if (churchUser) {
@@ -27,8 +29,14 @@ export default async function OnboardingPage({
   return (
     <main className="flex min-h-dvh flex-col justify-center bg-background px-5 py-10">
       <div className="mx-auto w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-semibold text-foreground">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <div
+            aria-hidden="true"
+            className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-600 font-display text-3xl font-semibold text-white shadow-lg shadow-primary-900/20"
+          >
+            F
+          </div>
+          <h1 className="font-display text-2xl font-semibold text-foreground">
             Set up your church
           </h1>
           <p className="mt-1 text-base text-muted-foreground">
@@ -39,8 +47,7 @@ export default async function OnboardingPage({
         {params.error && <Alert variant="error">{params.error}</Alert>}
 
         <form action={createChurch} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Church name</Label>
+          <FormField label="Church name" htmlFor="name">
             <Input
               id="name"
               name="name"
@@ -49,9 +56,8 @@ export default async function OnboardingPage({
               placeholder="e.g. Bethel Assembly"
               required
             />
-          </div>
-          <div>
-            <Label htmlFor="phone">Phone number</Label>
+          </FormField>
+          <FormField label="Phone number" htmlFor="phone">
             <Input
               id="phone"
               name="phone"
@@ -59,16 +65,15 @@ export default async function OnboardingPage({
               autoComplete="tel"
               placeholder="+233 24 000 0000"
             />
-          </div>
-          <div>
-            <Label htmlFor="location">Location</Label>
+          </FormField>
+          <FormField label="Location" htmlFor="location">
             <Input
               id="location"
               name="location"
               type="text"
               placeholder="e.g. Accra, Greater Accra"
             />
-          </div>
+          </FormField>
           <Button type="submit" className="w-full">
             Continue to dashboard
           </Button>

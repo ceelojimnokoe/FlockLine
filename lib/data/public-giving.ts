@@ -1,7 +1,12 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 
-export type PublicChurch = { id: string; name: string; logo_url: string | null };
+export type PublicChurch = {
+  id: string;
+  name: string;
+  logo_url: string | null;
+  giving_message: string | null;
+};
 export type PublicGivingFund = { id: string; name: string };
 
 /**

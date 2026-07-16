@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { MemberAvatar } from "@/components/members/avatar";
+import { StatusBadge } from "@/components/members/status-badge";
 import { FOLLOW_UP_TYPE_LABELS, type FollowUpType } from "@/lib/validation/follow-up";
+import type { MemberStatus } from "@/lib/validation/member";
 import { formatRelativeDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { NeedsAttentionFollowUp } from "@/lib/data/follow-ups";
@@ -38,16 +40,19 @@ export function NeedsAttentionList({ items }: { items: NeedsAttentionFollowUp[] 
                 {formatRelativeDate(item.due_date!)}
               </p>
             </div>
-            <span
-              className={cn(
-                "shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium",
-                item.urgency === "overdue"
-                  ? "bg-destructive/10 text-destructive"
-                  : "bg-sky-100 text-sky-800"
-              )}
-            >
-              {item.urgency === "overdue" ? "Overdue" : "Today"}
-            </span>
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              <StatusBadge status={item.member.status as MemberStatus} />
+              <span
+                className={cn(
+                  "rounded-full px-2.5 py-0.5 text-xs font-medium",
+                  item.urgency === "overdue"
+                    ? "bg-destructive/10 text-destructive"
+                    : "bg-sky-100 text-sky-800"
+                )}
+              >
+                {item.urgency === "overdue" ? "Overdue" : "Today"}
+              </span>
+            </div>
           </Link>
         </li>
       ))}

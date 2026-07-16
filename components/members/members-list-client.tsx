@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, useTransition } from "react";
+import { Users, SearchX } from "lucide-react";
 import { MemberRow } from "./member-row";
 import { MemberListSkeleton } from "./member-row-skeleton";
-import { EmptyState } from "./empty-state";
+import { EmptyState } from "@/components/ui/empty-state";
 import { LinkButton } from "@/components/ui/link-button";
 import { loadMoreMembers } from "@/app/dashboard/members/actions";
 import type { MemberListItem, MembersFilters } from "@/lib/data/members";
@@ -45,16 +46,22 @@ export function MembersListClient({
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-    // Only re-observe when hasMore flips — loadMore's identity changes as
-    // `members` grows, which would otherwise tear down/recreate the
-    // observer on every page load.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore]);
+    // Re-observe whenever `loadMore` changes (i.e. after every successful
+    // page load, since it closes over the current `members.length`).
+    // A previous version depended on [hasMore] only to avoid this churn,
+    // but that left the observer's callback permanently bound to the
+    // *first* loadMore closure — every scroll trigger after the first
+    // reused the original, now-stale `members.length`, re-fetching the
+    // same page and appending duplicate rows (duplicate React keys, no
+    // forward progress). Disconnecting/reconnecting one observer per load
+    // is cheap; a silently-stuck pager is not.
+  }, [hasMore, loadMore]);
 
   if (members.length === 0) {
     if (!hasAnyMembersAtAll) {
       return (
         <EmptyState
+          icon={Users}
           title="No members yet"
           description="Add your first member or import a CSV to get started."
           action={
@@ -70,6 +77,7 @@ export function MembersListClient({
     }
     return (
       <EmptyState
+        icon={SearchX}
         title="No members match your search"
         description="Try a different name, phone number, or filter."
       />

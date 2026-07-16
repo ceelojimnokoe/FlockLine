@@ -1,11 +1,17 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { ListChecks } from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
-import { EmptyState } from "@/components/members/empty-state";
+import { EmptyState } from "@/components/ui/empty-state";
 import { PipelineTabs } from "@/components/follow-ups/pipeline-tabs";
 import { FollowUpCard } from "@/components/follow-ups/follow-up-card";
 import { getCurrentChurchUser, getCurrentChurch } from "@/lib/data/church";
-import { getFollowUps, getOverdueCount, type FollowUpsFilters } from "@/lib/data/follow-ups";
+import {
+  getFollowUps,
+  getOverdueCount,
+  getStatusCounts,
+  type FollowUpsFilters,
+} from "@/lib/data/follow-ups";
 import { getTemplates, getDefaultTemplateForType } from "@/lib/data/templates";
 import { getTeammates } from "@/lib/data/teammates";
 import type { FollowUpStatus } from "@/lib/validation/follow-up";
@@ -25,9 +31,10 @@ export default async function FollowUpsPage({
 
   const filters: FollowUpsFilters = { status, scope };
 
-  const [followUps, overdueCount, templates, teammates, church] = await Promise.all([
+  const [followUps, overdueCount, statusCounts, templates, teammates, church] = await Promise.all([
     getFollowUps(filters, churchUser.id),
     getOverdueCount(churchUser.id, scope),
+    getStatusCounts(churchUser.id, scope),
     getTemplates(),
     getTeammates(),
     getCurrentChurch(),
@@ -39,18 +46,24 @@ export default async function FollowUpsPage({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-semibold text-foreground">Follow-ups</h1>
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-foreground">Follow-ups</h1>
+          <p className="text-sm text-muted-foreground">
+            {scope === "mine" ? "Assigned to me" : "Everyone's follow-ups"}
+          </p>
+        </div>
         <LinkButton href="/dashboard/followups/new" className="px-3">
           New
         </LinkButton>
       </div>
 
       <Suspense>
-        <PipelineTabs overdueCount={overdueCount} />
+        <PipelineTabs overdueCount={overdueCount} statusCounts={statusCounts} />
       </Suspense>
 
       {followUps.length === 0 ? (
         <EmptyState
+          icon={ListChecks}
           title={scope === "mine" ? "Nothing here for you right now" : "Nothing here right now"}
           description="Create a follow-up, or switch tabs to see other stages."
           action={

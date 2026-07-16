@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import { Alert } from "@/components/ui/alert";
 import { APP_NAME } from "@/lib/constants";
 import { signInWithPassword, signInWithMagicLink } from "./actions";
@@ -16,35 +16,27 @@ export default async function LoginPage({
   return (
     <main className="flex min-h-dvh flex-col justify-center bg-background px-5 py-10">
       <div className="mx-auto w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <h1 className="text-2xl font-semibold text-foreground">
-            Welcome back to {APP_NAME}
-          </h1>
-          <p className="mt-1 text-base text-muted-foreground">
-            Sign in to manage your church.
-          </p>
+        <div className="mb-8 flex flex-col items-center text-center">
+          <div
+            aria-hidden="true"
+            className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-600 font-display text-3xl font-semibold text-white shadow-lg shadow-primary-900/20"
+          >
+            F
+          </div>
+          <h1 className="font-display text-2xl font-semibold text-foreground">{APP_NAME}</h1>
+          <p className="mt-1 text-base text-muted-foreground">Sign in to manage your church.</p>
         </div>
 
         {params.error && <Alert variant="error">{params.error}</Alert>}
         {params.magicLinkSent && (
-          <Alert variant="success">
-            Check your email for a magic sign-in link.
-          </Alert>
+          <Alert variant="success">Check your email for a magic sign-in link.</Alert>
         )}
 
         <form action={signInWithPassword} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
+          <FormField label="Email" htmlFor="email">
+            <Input id="email" name="email" type="email" autoComplete="email" required />
+          </FormField>
+          <FormField label="Password" htmlFor="password">
             <Input
               id="password"
               name="password"
@@ -53,7 +45,7 @@ export default async function LoginPage({
               required
               minLength={8}
             />
-          </div>
+          </FormField>
           <Button type="submit" className="w-full">
             Sign in
           </Button>
@@ -66,16 +58,9 @@ export default async function LoginPage({
         </div>
 
         <form action={signInWithMagicLink} className="space-y-4">
-          <div>
-            <Label htmlFor="magic-email">Email for magic link</Label>
-            <Input
-              id="magic-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-            />
-          </div>
+          <FormField label="Email for magic link" htmlFor="magic-email">
+            <Input id="magic-email" name="email" type="email" autoComplete="email" required />
+          </FormField>
           <Button type="submit" variant="secondary" className="w-full">
             Email me a magic link
           </Button>

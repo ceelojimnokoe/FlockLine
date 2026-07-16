@@ -4,7 +4,10 @@ import type { Tables } from "@/types/database";
 import { FOLLOW_UP_STATUSES, type FollowUpStatus } from "@/lib/validation/follow-up";
 
 export type FollowUpListItem = Tables<"follow_ups"> & {
-  member: Pick<Tables<"members">, "id" | "first_name" | "last_name" | "phone" | "photo_url">;
+  member: Pick<
+    Tables<"members">,
+    "id" | "first_name" | "last_name" | "phone" | "photo_url" | "status"
+  >;
 };
 
 export type FollowUpsFilters = {
@@ -24,7 +27,7 @@ export async function getFollowUps(
 
   let query = supabase
     .from("follow_ups")
-    .select("*, member:members(id, first_name, last_name, phone, photo_url)")
+    .select("*, member:members(id, first_name, last_name, phone, photo_url, status)")
     .order("due_date", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false })
     .limit(200);
@@ -42,6 +45,28 @@ export async function getFollowUps(
   const { data, error } = await query;
   if (error) throw error;
   return data as unknown as FollowUpListItem[];
+}
+
+/** Powers the inline "Pending · 6" style counts on the pipeline's status tabs. */
+export async function getStatusCounts(
+  churchUserId: string,
+  scope: "mine" | "all"
+): Promise<Record<FollowUpStatus, number>> {
+  const supabase = await createClient();
+
+  const counts = await Promise.all(
+    FOLLOW_UP_STATUSES.map(async (status) => {
+      let query = supabase
+        .from("follow_ups")
+        .select("id", { count: "exact", head: true })
+        .eq("status", status);
+      if (scope === "mine") query = query.eq("assigned_to", churchUserId);
+      const { count } = await query;
+      return [status, count ?? 0] as const;
+    })
+  );
+
+  return Object.fromEntries(counts) as Record<FollowUpStatus, number>;
 }
 
 export async function getOverdueCount(churchUserId: string, scope: "mine" | "all") {
@@ -76,7 +101,7 @@ export async function getNeedsAttentionFollowUps(
 
   const { data, error } = await supabase
     .from("follow_ups")
-    .select("*, member:members(id, first_name, last_name, phone, photo_url)")
+    .select("*, member:members(id, first_name, last_name, phone, photo_url, status)")
     .eq("assigned_to", churchUserId)
     .neq("status", "done")
     .not("due_date", "is", null)

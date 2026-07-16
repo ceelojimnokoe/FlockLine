@@ -16,7 +16,7 @@ export default async function NewFollowUpPage({
       <Link href="/dashboard/followups" className="text-sm font-medium text-muted-foreground">
         ← Follow-ups
       </Link>
-      <h1 className="text-2xl font-semibold text-foreground">Create follow-up</h1>
+      <h1 className="font-display text-2xl font-semibold text-foreground">Create follow-up</h1>
       <FollowUpForm
         members={members}
         teammates={teammates}

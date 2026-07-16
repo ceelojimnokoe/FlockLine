@@ -71,6 +71,8 @@ export async function POST(request: Request) {
   const churchId = verified.metadata.church_id as string | undefined;
   const fundId = verified.metadata.fund_id as string | undefined;
   const giverPhone = verified.metadata.giver_phone as string | undefined;
+  const giverEmail = verified.metadata.giver_email as string | undefined;
+  const isAnonymous = verified.metadata.is_anonymous === true;
   const metadataMemberId = verified.metadata.member_id as string | undefined;
 
   if (!churchId || !fundId) {
@@ -106,25 +108,28 @@ export async function POST(request: Request) {
   // Re-derive the member match from phone rather than trusting
   // metadata.member_id blindly — metadata was set at initialize time and
   // is echoed back by Paystack, so falling back to it only after
-  // confirming it still belongs to this church.
+  // confirming it still belongs to this church. Skipped entirely when the
+  // giver chose "give anonymously," even if a phone is present.
   let memberId: string | null = null;
-  if (giverPhone) {
-    const { data: matchedByPhone } = await supabase
-      .from("members")
-      .select("id")
-      .eq("church_id", churchId)
-      .eq("phone", giverPhone)
-      .maybeSingle();
-    memberId = matchedByPhone?.id ?? null;
-  }
-  if (!memberId && metadataMemberId) {
-    const { data: matchedById } = await supabase
-      .from("members")
-      .select("id")
-      .eq("id", metadataMemberId)
-      .eq("church_id", churchId)
-      .maybeSingle();
-    memberId = matchedById?.id ?? null;
+  if (!isAnonymous) {
+    if (giverPhone) {
+      const { data: matchedByPhone } = await supabase
+        .from("members")
+        .select("id")
+        .eq("church_id", churchId)
+        .eq("phone", giverPhone)
+        .maybeSingle();
+      memberId = matchedByPhone?.id ?? null;
+    }
+    if (!memberId && metadataMemberId) {
+      const { data: matchedById } = await supabase
+        .from("members")
+        .select("id")
+        .eq("id", metadataMemberId)
+        .eq("church_id", churchId)
+        .maybeSingle();
+      memberId = matchedById?.id ?? null;
+    }
   }
 
   const { error: insertError } = await supabase.from("giving_records").insert({
@@ -135,6 +140,7 @@ export async function POST(request: Request) {
     currency: verified.currency,
     method: "paystack",
     reference,
+    donor_email: giverEmail || null,
     recorded_by: null,
     given_at: verified.paidAt ?? new Date().toISOString(),
   });
@@ -147,6 +153,30 @@ export async function POST(request: Request) {
     }
     console.error("Paystack webhook: failed to insert giving_record", insertError);
     return NextResponse.json({ error: "Database error" }, { status: 500 });
+  }
+
+  // Notify finance-authorized teammates (admin/pastor — same set that
+  // canViewGiving() allows to see individual records) that a gift came in.
+  // Direct insert, not create_notification(): there's no auth.uid() here
+  // for that function's own-church check to key off, and the service-role
+  // client already bypasses RLS, so church_id is set explicitly instead.
+  const { data: financeUsers } = await supabase
+    .from("church_users")
+    .select("id")
+    .eq("church_id", churchId)
+    .in("role", ["admin", "pastor"]);
+
+  if (financeUsers && financeUsers.length > 0) {
+    await supabase.from("notifications").insert(
+      financeUsers.map((u) => ({
+        church_id: churchId,
+        recipient_id: u.id,
+        category: "giving" as const,
+        type: "giving_received",
+        title: `New gift received — ${verified.currency} ${verified.amountGHS.toFixed(2)}`,
+        link: "/dashboard/giving",
+      }))
+    );
   }
 
   return NextResponse.json({ received: true });

@@ -26,6 +26,7 @@ export type Database = {
           location: string | null;
           logo_url: string | null;
           plan: "starter" | "pro" | "business";
+          giving_message: string | null;
           created_at: string;
         };
         Insert: {
@@ -36,6 +37,7 @@ export type Database = {
           location?: string | null;
           logo_url?: string | null;
           plan?: "starter" | "pro" | "business";
+          giving_message?: string | null;
           created_at?: string;
         };
         Update: {
@@ -46,6 +48,7 @@ export type Database = {
           location?: string | null;
           logo_url?: string | null;
           plan?: "starter" | "pro" | "business";
+          giving_message?: string | null;
           created_at?: string;
         };
         Relationships: [];
@@ -262,6 +265,8 @@ export type Database = {
           church_id: string;
           name: string;
           is_active: boolean;
+          target_amount: number | null;
+          is_public: boolean;
           created_at: string;
         };
         Insert: {
@@ -269,6 +274,8 @@ export type Database = {
           church_id: string;
           name: string;
           is_active?: boolean;
+          target_amount?: number | null;
+          is_public?: boolean;
           created_at?: string;
         };
         Update: {
@@ -276,6 +283,8 @@ export type Database = {
           church_id?: string;
           name?: string;
           is_active?: boolean;
+          target_amount?: number | null;
+          is_public?: boolean;
           created_at?: string;
         };
         Relationships: [
@@ -297,6 +306,7 @@ export type Database = {
           currency: string;
           method: "paystack" | "momo_manual" | "cash";
           reference: string | null;
+          donor_email: string | null;
           recorded_by: string | null;
           given_at: string;
           created_at: string;
@@ -310,6 +320,7 @@ export type Database = {
           currency?: string;
           method: "paystack" | "momo_manual" | "cash";
           reference?: string | null;
+          donor_email?: string | null;
           recorded_by?: string | null;
           given_at?: string;
           created_at?: string;
@@ -323,6 +334,7 @@ export type Database = {
           currency?: string;
           method?: "paystack" | "momo_manual" | "cash";
           reference?: string | null;
+          donor_email?: string | null;
           recorded_by?: string | null;
           given_at?: string;
           created_at?: string;
@@ -408,18 +420,66 @@ export type Database = {
           id: string;
           church_id: string;
           name: string;
+          description: string | null;
+          group_type:
+            | "prayer"
+            | "bible_study"
+            | "youth"
+            | "choir"
+            | "ushering"
+            | "men"
+            | "women"
+            | "children"
+            | "other"
+            | null;
+          leader_id: string | null;
+          whatsapp_link: string | null;
+          meeting_location: string | null;
+          is_active: boolean;
           created_at: string;
         };
         Insert: {
           id?: string;
           church_id: string;
           name: string;
+          description?: string | null;
+          group_type?:
+            | "prayer"
+            | "bible_study"
+            | "youth"
+            | "choir"
+            | "ushering"
+            | "men"
+            | "women"
+            | "children"
+            | "other"
+            | null;
+          leader_id?: string | null;
+          whatsapp_link?: string | null;
+          meeting_location?: string | null;
+          is_active?: boolean;
           created_at?: string;
         };
         Update: {
           id?: string;
           church_id?: string;
           name?: string;
+          description?: string | null;
+          group_type?:
+            | "prayer"
+            | "bible_study"
+            | "youth"
+            | "choir"
+            | "ushering"
+            | "men"
+            | "women"
+            | "children"
+            | "other"
+            | null;
+          leader_id?: string | null;
+          whatsapp_link?: string | null;
+          meeting_location?: string | null;
+          is_active?: boolean;
           created_at?: string;
         };
         Relationships: [
@@ -427,6 +487,12 @@ export type Database = {
             foreignKeyName: "volunteer_teams_church_id_fkey";
             columns: ["church_id"];
             referencedRelation: "churches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "volunteer_teams_leader_id_fkey";
+            columns: ["leader_id"];
+            referencedRelation: "members";
             referencedColumns: ["id"];
           },
         ];
@@ -502,6 +568,192 @@ export type Database = {
           },
         ];
       };
+      sessions: {
+        Row: {
+          id: string;
+          church_id: string;
+          team_id: string;
+          title: string;
+          type: "prayer_meeting" | "bible_study" | "youth_meeting" | "fellowship" | "other";
+          scheduled_at: string;
+          recurrence: "none" | "weekly" | "biweekly" | "monthly";
+          whatsapp_link: string | null;
+          discussion_questions: string | null;
+          prayer_points: string | null;
+          resources: { title: string; url: string }[];
+          status: "scheduled" | "completed" | "cancelled";
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          team_id: string;
+          title: string;
+          type: "prayer_meeting" | "bible_study" | "youth_meeting" | "fellowship" | "other";
+          scheduled_at: string;
+          recurrence?: "none" | "weekly" | "biweekly" | "monthly";
+          whatsapp_link?: string | null;
+          discussion_questions?: string | null;
+          prayer_points?: string | null;
+          resources?: { title: string; url: string }[];
+          status?: "scheduled" | "completed" | "cancelled";
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          team_id?: string;
+          title?: string;
+          type?: "prayer_meeting" | "bible_study" | "youth_meeting" | "fellowship" | "other";
+          scheduled_at?: string;
+          recurrence?: "none" | "weekly" | "biweekly" | "monthly";
+          whatsapp_link?: string | null;
+          discussion_questions?: string | null;
+          prayer_points?: string | null;
+          resources?: { title: string; url: string }[];
+          status?: "scheduled" | "completed" | "cancelled";
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sessions_church_id_fkey";
+            columns: ["church_id"];
+            referencedRelation: "churches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "sessions_team_id_fkey";
+            columns: ["team_id"];
+            referencedRelation: "volunteer_teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "sessions_created_by_fkey";
+            columns: ["created_by"];
+            referencedRelation: "church_users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      session_attendance: {
+        Row: {
+          id: string;
+          session_id: string;
+          member_id: string;
+          status: "invited" | "attended" | "absent" | "excused" | "late";
+          recorded_by: string | null;
+          recorded_at: string;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          member_id: string;
+          status?: "invited" | "attended" | "absent" | "excused" | "late";
+          recorded_by?: string | null;
+          recorded_at?: string;
+        };
+        Update: {
+          id?: string;
+          session_id?: string;
+          member_id?: string;
+          status?: "invited" | "attended" | "absent" | "excused" | "late";
+          recorded_by?: string | null;
+          recorded_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "session_attendance_session_id_fkey";
+            columns: ["session_id"];
+            referencedRelation: "sessions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_attendance_member_id_fkey";
+            columns: ["member_id"];
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_attendance_recorded_by_fkey";
+            columns: ["recorded_by"];
+            referencedRelation: "church_users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      prayer_requests: {
+        Row: {
+          id: string;
+          church_id: string;
+          member_id: string;
+          session_id: string | null;
+          request: string;
+          privacy_level: "all_volunteers" | "assigned_leader" | "leadership_only";
+          assigned_leader_id: string | null;
+          status: "open" | "praying" | "answered" | "closed";
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          member_id: string;
+          session_id?: string | null;
+          request: string;
+          privacy_level?: "all_volunteers" | "assigned_leader" | "leadership_only";
+          assigned_leader_id?: string | null;
+          status?: "open" | "praying" | "answered" | "closed";
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          member_id?: string;
+          session_id?: string | null;
+          request?: string;
+          privacy_level?: "all_volunteers" | "assigned_leader" | "leadership_only";
+          assigned_leader_id?: string | null;
+          status?: "open" | "praying" | "answered" | "closed";
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "prayer_requests_church_id_fkey";
+            columns: ["church_id"];
+            referencedRelation: "churches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "prayer_requests_member_id_fkey";
+            columns: ["member_id"];
+            referencedRelation: "members";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "prayer_requests_session_id_fkey";
+            columns: ["session_id"];
+            referencedRelation: "sessions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "prayer_requests_assigned_leader_id_fkey";
+            columns: ["assigned_leader_id"];
+            referencedRelation: "church_users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "prayer_requests_created_by_fkey";
+            columns: ["created_by"];
+            referencedRelation: "church_users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       message_templates: {
         Row: {
           id: string;
@@ -539,6 +791,58 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          id: string;
+          church_id: string;
+          recipient_id: string;
+          category: "care" | "sessions" | "giving" | "members" | "system";
+          type: string;
+          title: string;
+          body: string | null;
+          link: string | null;
+          is_read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          church_id: string;
+          recipient_id: string;
+          category: "care" | "sessions" | "giving" | "members" | "system";
+          type: string;
+          title: string;
+          body?: string | null;
+          link?: string | null;
+          is_read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          church_id?: string;
+          recipient_id?: string;
+          category?: "care" | "sessions" | "giving" | "members" | "system";
+          type?: string;
+          title?: string;
+          body?: string | null;
+          link?: string | null;
+          is_read?: boolean;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notifications_church_id_fkey";
+            columns: ["church_id"];
+            referencedRelation: "churches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "notifications_recipient_id_fkey";
+            columns: ["recipient_id"];
+            referencedRelation: "church_users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -564,6 +868,7 @@ export type Database = {
           location: string | null;
           logo_url: string | null;
           plan: "starter" | "pro" | "business";
+          giving_message: string | null;
           created_at: string;
         };
       };
@@ -573,11 +878,27 @@ export type Database = {
       };
       get_public_church_by_slug: {
         Args: { p_slug: string };
-        Returns: { id: string; name: string; logo_url: string | null }[];
+        Returns: {
+          id: string;
+          name: string;
+          logo_url: string | null;
+          giving_message: string | null;
+        }[];
       };
       get_public_giving_funds: {
         Args: { p_church_id: string };
         Returns: { id: string; name: string }[];
+      };
+      create_notification: {
+        Args: {
+          p_recipient_id: string;
+          p_category: string;
+          p_type: string;
+          p_title: string;
+          p_body: string | null;
+          p_link: string | null;
+        };
+        Returns: undefined;
       };
     };
     Enums: Record<string, never>;

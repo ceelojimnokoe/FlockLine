@@ -17,7 +17,7 @@ export default async function NewGivingEntryPage() {
       <Link href="/dashboard/giving" className="text-sm font-medium text-muted-foreground">
         ← Giving
       </Link>
-      <h1 className="text-2xl font-semibold text-foreground">Record giving</h1>
+      <h1 className="font-display text-2xl font-semibold text-foreground">Record giving</h1>
 
       {activeFunds.length === 0 ? (
         <p className="text-base text-muted-foreground">
